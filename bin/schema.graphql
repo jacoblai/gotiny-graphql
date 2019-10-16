@@ -1,0 +1,37 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Query {
+    search(name: String!): [Person]!
+}
+
+type Mutation {
+    createPerson(input : inputPerson):String
+}
+
+input inputPerson {
+    name: String!
+    email: String!
+    role: Role!
+    phone: String!
+    address: [String!]
+    createdAt: Time
+}
+
+scalar Time
+type Person {
+    id: String!
+    name: String!
+    email: String!
+    role: Role!
+    phone: String!
+    address: [String!]
+    createdAt: Time!
+}
+
+enum Role {
+    ADMIN
+    USER
+}
