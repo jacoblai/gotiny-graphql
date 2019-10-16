@@ -35,7 +35,7 @@ func (d *DbEngine) CreatePerson(ctx context.Context, args struct{ Input *models.
 		Address:   args.Input.Address,
 		Email:     args.Input.Email,
 		Phone:     args.Input.Phone,
-		CreatedAt: graphql.Time{time.Now().UTC()},
+		CreatedAt: graphql.Time{time.Now().Local()},
 	}
 
 	id := p.Id()
