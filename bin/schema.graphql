@@ -17,7 +17,8 @@ input inputPerson {
     role: Role!
     phone: String!
     address: [String!]
-    createdAt: Time
+    total: Float
+    order: Int
 }
 
 scalar Time
@@ -29,6 +30,8 @@ type Person {
     phone: String!
     address: [String!]
     createdAt: Time!
+    total: Float
+    order: Int
 }
 
 enum Role {

@@ -9,15 +9,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"go.mongodb.org/mongo-driver/mongo/writeconcern"
+	"go.mongodb.org/mongo-driver/x/bsonx"
 	"log"
+	"models"
 	"sync"
 	"time"
 )
 
 type DbEngine struct {
-	MgEngine   *mongo.Client //关系型数据库引擎
-	Mdb        string
-	RoleLock   sync.RWMutex
+	MgEngine *mongo.Client //关系型数据库引擎
+	Mdb      string
+	RoleLock sync.RWMutex
 }
 
 func NewDbEngine() *DbEngine {
@@ -63,61 +65,18 @@ func (d *DbEngine) Open(dir, mg, mdb string, initdb bool) error {
 		}
 		session = ss
 		defer session.Disconnect(context.Background())
-		////user表
-		//res := InitDbAndColl(session, mdb, models.T_USER, GenJsonSchema(&models.User{}))
-		//u := session.Database(mdb).Collection(models.T_USER)
-		//indexview := u.Indexes()
-		//_, err = indexview.CreateOne(context.Background(),
-		//	mongo.IndexModel{
-		//		Keys: bsonx.Doc{{"uid", bsonx.Int32(1)}},
-		//	})
-		//if err != nil {
-		//	log.Println(err)
-		//}
-		////初始化后台管理账户
-		//admin := &models.User{
-		//	Uid:   "root",
-		//	Name:  "超级管理员",
-		//	Pwd:   "1356#@abcfTest",
-		//	Phone: "13800000001",
-		//	Kind:  "公司"}
-		////pwd加密
-		//admin.Pwd = hex.EncodeToString(jcrypt.MsgEncode([]byte(admin.Pwd)))
-		//admin.CreateAt = time.Now().Local()
-		//stat := false
-		//stot := true
-		//admin.IsDelete = &stat
-		//admin.IsDisable = &stat
-		//admin.IsRoot = &stot
-		////err = u.Update(bson.M{"uid":"root"},bson.M{"$setOnInsert":admin,"upsert":true})
-		//re := u.FindOneAndReplace(context.Background(), bson.M{"uid": "root"}, admin, options.FindOneAndReplace().SetUpsert(true))
-		//if re.Err() != nil {
-		//	log.Println("initialize sysAdmin account ：" + re.Err().Error())
-		//}
-		//log.Println(res)
-		////token表
-		//res = InitDbAndColl(session, mdb, models.T_TOKEN, GenJsonSchema(&models.Token{}))
-		//log.Println(res)
-		//t := session.Database(mdb).Collection(models.T_TOKEN)
-		//indexview = t.Indexes()
-		//_, err = indexview.CreateMany(context.Background(), []mongo.IndexModel{
-		//	{
-		//		Keys:    bsonx.Doc{{"createat", bsonx.Int32(1)}},
-		//		Options: options.Index().SetExpireAfterSeconds(7200),
-		//	},
-		//	{
-		//		Keys: bsonx.Doc{{"token", bsonx.Int32(1)}},
-		//	},
-		//	{
-		//		Keys: bsonx.Doc{{"realtoken", bsonx.Int32(1)}},
-		//	},
-		//	{
-		//		Keys: bsonx.Doc{{"useroid", bsonx.Int32(1)}},
-		//	},
-		//})
-		//if err != nil {
-		//	log.Println(err)
-		//}
+		//user表
+		res := InitDbAndColl(session, mdb, models.T_Person, GenJsonSchema(&models.Person{}))
+		u := session.Database(mdb).Collection(models.T_Person)
+		indexView := u.Indexes()
+		_, err = indexView.CreateOne(context.Background(),
+			mongo.IndexModel{
+				Keys: bsonx.Doc{{"name", bsonx.Int32(1)}},
+			})
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println(models.T_Person, res["ok"])
 	}
 
 	return nil

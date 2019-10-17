@@ -32,7 +32,7 @@ func main() {
 		dbinit = flag.Bool("i", true, "init database flag")
 		mongo  = flag.String("m", "mongodb://root:root@192.168.101.68:27017,192.168.101.69:27017,192.168.101.70:27017/?authSource=admin&replicaSet=rs1", "mongod addr flag")
 		//mongo = flag.String("m", "", "mongod addr flag")
-		db = flag.String("db", "test_db", "mongod addr flag")
+		db = flag.String("db", "test_graphql", "mongod addr flag")
 	)
 	flag.Parse()
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
