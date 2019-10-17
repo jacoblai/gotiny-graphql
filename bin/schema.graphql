@@ -11,15 +11,35 @@ type Query {
         "用户姓名"
         name: String!
     ): [Person]!
+
+    "通过用户姓名查找所有用户信息并附带订单信息"
+    searchOrders(
+        "用户性名"
+        name: String!
+        "游标"
+        skip: Int
+        "提取量"
+        limit: Int
+    ): [Person]!
 }
 
 type Mutation {
     """
-    创建一个用户记录
+    创建用户
     """
     createPerson(
         "新用户信息"
         input : inputPerson
+    ):String
+
+    """
+    创建订单
+    """
+    createOrder(
+        "用户唯一标识"
+        uid : String!
+        "订单信息"
+        input : inputOrder
     ):String
 }
 
@@ -30,7 +50,7 @@ input inputPerson {
     "邮箱"
     email: String!
     "权限"
-    role: Role!
+    role: em_Role!
     "电话"
     phone: String!
     "地址"
@@ -51,7 +71,7 @@ type Person {
     "邮箱"
     email: String!
     "权限"
-    role: Role!
+    role: em_Role!
     "电话"
     phone: String!
     "地址"
@@ -60,14 +80,52 @@ type Person {
     total: Float
     "总订单数"
     order: Int
+    "订单"
+    orders: [Order]
     "创建时间"
     createdAt: Time!
 }
 
 "权限对象"
-enum Role {
+enum em_Role {
     "管理员"
     ADMIN
     "普通用户"
     USER
+}
+
+"订单对象"
+type Order {
+    "ObjectID唯一标识"
+    id: String!
+    "用户ObjectID关联标识"
+    personId: String!
+    "订单状态"
+    express: em_express!
+    "是否禁用"
+    isdisable: Boolean!
+    "创建时间"
+    createdAt: Time!
+}
+
+"创建订单对象"
+input inputOrder {
+    "订单状态"
+    express: em_express!
+    "是否禁用"
+    isdisable: Boolean!
+}
+
+"订单状态对象"
+enum em_express {
+    "待处理"
+    Wait
+    "待发货"
+    WaitDelivery
+    "已发货"
+    Shipped
+    "完成"
+    Finish
+    "取消"
+    Cancel
 }

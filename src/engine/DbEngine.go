@@ -77,6 +77,9 @@ func (d *DbEngine) Open(dir, mg, mdb string, initdb bool) error {
 			log.Println(err)
 		}
 		log.Println(models.T_Person, res["ok"])
+		//order表
+		res = InitDbAndColl(session, mdb, models.T_Order, GenJsonSchema(&models.Order{}))
+		log.Println(models.T_Order, res["ok"])
 	}
 
 	return nil
