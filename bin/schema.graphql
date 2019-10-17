@@ -7,14 +7,20 @@ type Query {
     """
     通过name查找所有匹配的用户信息
     """
-    search(name: String!): [Person]!
+    search(
+        "用户姓名"
+        name: String!
+    ): [Person]!
 }
 
 type Mutation {
     """
     创建一个用户记录
     """
-    createPerson(input : inputPerson):String
+    createPerson(
+        "新用户信息"
+        input : inputPerson
+    ):String
 }
 
 "用户对象（创建专用）"
