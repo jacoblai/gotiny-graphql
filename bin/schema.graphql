@@ -37,7 +37,7 @@ type Mutation {
     """
     createOrder(
         "用户唯一标识"
-        uid : String!
+        personId: String!
         "订单信息"
         input : inputOrder
     ):String

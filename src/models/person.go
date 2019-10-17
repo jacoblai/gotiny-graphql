@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var T_Person = "persons"
+var T_Person = "t_persons"
 
 type Person struct {
 	IdFiled        primitive.ObjectID `json:"id" bson:"_id,omitempty" jsonschema:"-"`

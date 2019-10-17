@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var T_Order = "orders"
+var T_Order = "t_orders"
 
 //订单
 type Order struct {
@@ -29,4 +29,10 @@ func (u Order) Id() string {
 
 func (u Order) PersonId() string {
 	return u.PersonIdFiled.Hex()
+}
+
+type InputOrder struct {
+	PersonId  string
+	Express   string
+	IsDisable bool
 }

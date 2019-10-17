@@ -3,7 +3,10 @@ package engine
 import (
 	"context"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"models"
+	"time"
 )
 
 func (d *DbEngine) SearchOrders(ctx context.Context, args struct {
@@ -16,22 +19,24 @@ func (d *DbEngine) SearchOrders(ctx context.Context, args struct {
 	query := []bson.M{
 		{"$match": qstr},
 		{"$sort": bson.M{"createdat": -1}},
-		{"$skip": args.Skip},
 	}
 
-	if *args.Limit > 0 {
+	if args.Skip != nil {
+		query = append(query, bson.M{"$skip": args.Skip})
+	}
+	if args.Limit != nil {
 		query = append(query, bson.M{"$limit": *args.Limit})
 	}
 	query = append(query,
 		bson.M{"$lookup": bson.M{
 			"from":         models.T_Order,
-			"localField":   "personid",
-			"foreignField": "_id",
-			"as":           "order",
+			"localField":   "_id",
+			"foreignField": "personid",
+			"as":           "orders",
 		}})
 
 	var objs []*models.Person
-	re, err := c.Aggregate(ctx, query)
+	re, err := c.Aggregate(ctx, query, options.Aggregate())
 	if err != nil {
 		return nil, err
 	}
@@ -41,4 +46,33 @@ func (d *DbEngine) SearchOrders(ctx context.Context, args struct {
 	}
 
 	return objs, nil
+}
+
+func (d *DbEngine) CreateOrder(ctx context.Context, args struct {
+	PersonId string
+	Input    *models.InputOrder
+}) (*string, error) {
+	c := d.GetColl(models.T_Order)
+
+	oid, err := primitive.ObjectIDFromHex(args.PersonId)
+	if err != nil {
+		return nil, err
+	}
+
+	o := models.Order{
+		PersonIdFiled:  oid,
+		Express:        args.Input.Express,
+		IsDisable:      args.Input.IsDisable,
+		CreatedAtFiled: time.Now().Local(),
+	}
+
+	id := ""
+	dbRes, err := c.InsertOne(context.Background(), &o)
+	if err != nil {
+		return &id, err
+	}
+
+	id = dbRes.InsertedID.(primitive.ObjectID).Hex()
+
+	return &id, nil
 }
