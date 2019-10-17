@@ -4,37 +4,64 @@ schema {
 }
 
 type Query {
+    """
+    通过name查找所有匹配的用户信息
+    """
     search(name: String!): [Person]!
 }
 
 type Mutation {
+    """
+    创建一个用户记录
+    """
     createPerson(input : inputPerson):String
 }
 
+"用户对象（创建专用）"
 input inputPerson {
+    "姓名"
     name: String!
+    "邮箱"
     email: String!
+    "权限"
     role: Role!
+    "电话"
     phone: String!
+    "地址"
     address: [String!]
+    "总步数"
     total: Float
+    "总订单数"
     order: Int
 }
 
 scalar Time
+"用户对象"
 type Person {
+    "ObjectID唯一标识"
     id: String!
+    "姓名"
     name: String!
+    "邮箱"
     email: String!
+    "权限"
     role: Role!
+    "电话"
     phone: String!
+    "地址"
     address: [String!]
-    createdAt: Time!
+    "总步数"
     total: Float
+    "总订单数"
     order: Int
+    "创建时间"
+    createdAt: Time!
 }
 
+"权限对象"
 enum Role {
+    "管理员"
     ADMIN
+    "普通用户"
     USER
 }
