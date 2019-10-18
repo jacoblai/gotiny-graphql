@@ -85,14 +85,6 @@ func (d *DbEngine) Open(dir, mg, mdb string, initdb bool) error {
 	return nil
 }
 
-func (d *DbEngine) GetSess() (mongo.Session, error) {
-	session, err := d.MgEngine.StartSession(options.Session().SetDefaultReadPreference(readpref.Primary()))
-	if err != nil {
-		return nil, err
-	}
-	return session, nil
-}
-
 func (d *DbEngine) GetColl(coll string) *mongo.Collection {
 	col, _ := d.MgEngine.Database(d.Mdb).Collection(coll).Clone()
 	return col

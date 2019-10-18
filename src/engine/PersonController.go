@@ -2,8 +2,12 @@ package engine
 
 import (
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"models"
 	"time"
 )
@@ -25,26 +29,46 @@ func (d *DbEngine) Search(ctx context.Context, args struct{ Name string }) ([]*m
 }
 
 func (d *DbEngine) CreatePerson(ctx context.Context, args struct{ Input *models.InputPerson }) (*string, error) {
-	c := d.GetColl(models.T_Person)
-
-	p := models.Person{
-		Name:           args.Input.Name,
-		Role:           args.Input.Role,
-		Address:        args.Input.Address,
-		Email:          args.Input.Email,
-		Phone:          args.Input.Phone,
-		Total:          args.Input.Total,
-		Order:          args.Input.Order,
-		CreatedAtFiled: time.Now().Local(),
-	}
-
 	id := ""
-	dbRes, err := c.InsertOne(context.Background(), &p)
-	if err != nil {
-		return &id, err
-	}
 
-	id = dbRes.InsertedID.(primitive.ObjectID).Hex()
+	sess, err := d.MgEngine.StartSession()
+	if err != nil {
+		return nil, errors.New("事务开始失败")
+	}
+	defer sess.EndSession(context.Background())
+
+	err = d.MgEngine.UseSessionWithOptions(context.Background(), options.Session().SetDefaultReadPreference(readpref.Primary()), func(sessionContext mongo.SessionContext) error {
+		err := sessionContext.StartTransaction()
+		if err != nil {
+			return err
+		}
+
+		c := d.GetColl(models.T_Person)
+
+		p := models.Person{
+			Name:           args.Input.Name,
+			Role:           args.Input.Role,
+			Address:        args.Input.Address,
+			Email:          args.Input.Email,
+			Phone:          args.Input.Phone,
+			Total:          args.Input.Total,
+			Order:          args.Input.Order,
+			CreatedAtFiled: time.Now().Local(),
+		}
+
+		dbRes, err := c.InsertOne(context.Background(), &p)
+		if err != nil {
+			_ = sessionContext.AbortTransaction(sessionContext)
+			return err
+		}
+
+		id = dbRes.InsertedID.(primitive.ObjectID).Hex()
+
+		return sessionContext.CommitTransaction(sessionContext)
+	})
+	if err != nil {
+		return nil, err
+	}
 
 	return &id, nil
 }
