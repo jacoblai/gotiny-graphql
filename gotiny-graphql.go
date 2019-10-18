@@ -23,10 +23,6 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
-type query struct{}
-
-func (_ *query) Hello() string { return "Hello, world!" }
-
 func main() {
 	var (
 		dbinit = flag.Bool("i", true, "init database flag")
