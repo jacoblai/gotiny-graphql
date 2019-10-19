@@ -4,11 +4,13 @@ import (
 	"bytes"
 )
 
-var KindWord = []byte("$")
+var KindWord = [][]byte{[]byte("$"), []byte("{"), []byte("}"), []byte(":")}
 
 func InjectionPass(word []byte) bool {
-	if bytes.Contains(word, KindWord) {
-		return false
+	for _, v := range KindWord {
+		if bytes.Contains(word, v) {
+			return false
+		}
 	}
 	return true
 }
