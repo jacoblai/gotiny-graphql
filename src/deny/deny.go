@@ -4,7 +4,7 @@ import (
 	"bytes"
 )
 
-var KindWord = [][]byte{[]byte("$"), []byte("{"), []byte("}"), []byte(":")}
+var KindWord = [][]byte{[]byte("$"), []byte("{"), []byte("}")}
 
 func InjectionPass(word []byte) bool {
 	for _, v := range KindWord {
