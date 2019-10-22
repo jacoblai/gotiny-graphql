@@ -2,6 +2,8 @@ package engine
 
 import (
 	"context"
+	"deny"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,6 +30,10 @@ func (d *DbEngine) Search(ctx context.Context, args struct{ Name string }) ([]*m
 }
 
 func (d *DbEngine) CreatePerson(ctx context.Context, args struct{ Input *models.InputPerson }) (*string, error) {
+	if !deny.Injection(args.Input) {
+		return nil, errors.New("Injection ")
+	}
+
 	id := ""
 
 	c := d.GetColl(models.T_Person)
