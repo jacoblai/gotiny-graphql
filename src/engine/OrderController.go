@@ -2,10 +2,13 @@ package engine
 
 import (
 	"context"
+	"errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
 	"models"
+	"net/http"
 	"time"
 )
 
@@ -13,6 +16,13 @@ func (d *DbEngine) SearchOrders(ctx context.Context, args struct {
 	Name        string
 	Skip, Limit *int32
 }) ([]*models.Person, error) {
+
+	headers, ok := ctx.Value("headers").(http.Header)
+	if !ok {
+		return nil, errors.New("auth data error")
+	}
+	log.Println(headers.Get("Authorization"), headers.Get("role"))
+
 	c := d.GetColl(models.T_Person)
 
 	qstr := bson.M{"name": args.Name}
