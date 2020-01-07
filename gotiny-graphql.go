@@ -6,8 +6,8 @@ import (
 	"engine"
 	"flag"
 	"fmt"
-	"github.com/graph-gophers/graphql-go"
-	"github.com/graph-gophers/graphql-go/relay"
+	"github.com/jacoblai/graphql-go"
+	"github.com/jacoblai/graphql-go/relay"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -65,7 +65,7 @@ func main() {
 	schema := graphql.MustParseSchema(string(b), eng, opts...)
 	//1083
 	mux := http.NewServeMux()
-	mux.Handle("/", &relay.Handler{Schema: schema})
+	mux.Handle("/", eng.TokenAuth(&relay.Handler{Schema: schema}))
 	srv := &http.Server{Handler: cors.CORS(mux), ErrorLog: nil}
 	srv.Addr = ":8000"
 	//cert, err := tls.LoadX509KeyPair(dir+"/server.pem", dir+"/server.key")

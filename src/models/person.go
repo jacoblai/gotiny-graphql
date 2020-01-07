@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/graph-gophers/graphql-go"
+	"github.com/jacoblai/graphql-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
