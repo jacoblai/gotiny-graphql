@@ -23,6 +23,10 @@ func (d *DbEngine) SearchOrders(ctx context.Context, args struct {
 	}
 	log.Println(headers.Get("Authorization"), headers.Get("role"))
 
+	if headers.Get("user_name") != "admin" {
+		return nil, errors.New("权限不足")
+	}
+
 	c := d.GetColl(models.T_Person)
 
 	qstr := bson.M{"name": args.Name}
