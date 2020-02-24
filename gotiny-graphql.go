@@ -26,9 +26,8 @@ func init() {
 func main() {
 	var (
 		dbinit = flag.Bool("i", true, "init database flag")
-		mongo  = flag.String("m", "mongodb://root:root@192.168.101.68:27017,192.168.101.69:27017,192.168.101.70:27017/?authSource=admin&replicaSet=rs1", "mongod addr flag")
-		//mongo = flag.String("m", "", "mongod addr flag")
-		db = flag.String("db", "test_graphql", "mongod addr flag")
+		mongo  = flag.String("m", "", "mongod addr flag")
+		db     = flag.String("db", "test_graphql", "mongod addr flag")
 	)
 	flag.Parse()
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
@@ -68,12 +67,6 @@ func main() {
 	mux.Handle("/", eng.TokenAuth(&relay.Handler{Schema: schema}))
 	srv := &http.Server{Handler: cors.CORS(mux), ErrorLog: nil}
 	srv.Addr = ":8000"
-	//cert, err := tls.LoadX509KeyPair(dir+"/server.pem", dir+"/server.key")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//config := &tls.Config{Certificates: []tls.Certificate{cert}}
-	//srv.TLSConfig = config
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			log.Fatal(err)
