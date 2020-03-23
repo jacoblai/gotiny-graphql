@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"cors"
+	"crypto/tls"
 	"engine"
 	"flag"
 	"fmt"
@@ -60,19 +61,40 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	opts := []graphql.SchemaOpt{graphql.UseFieldResolvers(), graphql.UseStringDescriptions()}
+	opts := []graphql.SchemaOpt{
+		graphql.UseFieldResolvers(),
+		graphql.UseStringDescriptions(),
+		graphql.MaxParallelism(1000),
+		//graphql.DisableIntrospection(),//生产环境需启动此功能禁用客户端调试
+	}
 	schema := graphql.MustParseSchema(string(b), eng, opts...)
 	//1083
 	mux := http.NewServeMux()
 	mux.Handle("/", eng.TokenAuth(&relay.Handler{Schema: schema}))
 	srv := &http.Server{Handler: cors.CORS(mux), ErrorLog: nil}
 	srv.Addr = ":8000"
-	go func() {
-		if err := srv.ListenAndServe(); err != nil {
+	if !*dbinit {
+		//生产环境取消刷库后以TLS模式运行服务
+		cert, err := tls.LoadX509KeyPair(dir+"/data/server.pem", dir+"/data/server.key")
+		if err != nil {
 			log.Fatal(err)
 		}
-	}()
-	log.Println("server on tls port", srv.Addr)
+		config := &tls.Config{Certificates: []tls.Certificate{cert}}
+		srv.TLSConfig = config
+		go func() {
+			if err := srv.ListenAndServeTLS("", ""); err != nil {
+				log.Fatal(err)
+			}
+		}()
+		log.Println("server on https port", srv.Addr)
+	} else {
+		go func() {
+			if err := srv.ListenAndServe(); err != nil {
+				log.Fatal(err)
+			}
+		}()
+		log.Println("server on http port", srv.Addr)
+	}
 
 	signalChan := make(chan os.Signal, 1)
 	cleanupDone := make(chan bool)
